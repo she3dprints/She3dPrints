@@ -1,0 +1,338 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Own Clicker | She3DPrints</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f8f6f2;
+  color: #292929;
+}
+
+header {
+  padding: 24px 15px;
+  text-align: center;
+  background: #292929;
+  color: white;
+}
+
+header h2 { margin: 0; letter-spacing: 2px; }
+header p { font-size: 12px; color: #ddd; }
+
+main {
+  max-width: 650px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 { text-align: center; font-size: 26px; }
+.subtitle { text-align: center; color: #777; }
+
+.section {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 18px 0;
+  box-shadow: 0 2px 12px #00000008;
+}
+
+.preview {
+  background: #f0eee9;
+  padding: 35px 10px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.clicker {
+  width: 280px;
+  min-height: 110px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  box-shadow: 0 7px 12px #00000025;
+  transition: background .2s;
+}
+
+.click-button {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 3px solid #00000025;
+  box-shadow: 0 4px 0 #00000035;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.swatch {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  cursor: pointer;
+}
+
+.swatch.selected {
+  outline: 3px solid #333;
+  outline-offset: 3px;
+}
+
+.count {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.count button {
+  flex: 1;
+  padding: 13px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.count button.selected {
+  background: #292929;
+  color: white;
+}
+
+select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+}
+
+label { font-size: 14px; font-weight: bold; }
+
+.price {
+  font-size: 27px;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px;
+}
+
+.order {
+  width: 100%;
+  background: #292929;
+  color: white;
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.note {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #888;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>SHE 3D PRINTS</h2>
+  <p>MADE JUST THE WAY YOU LIKE IT</p>
+</header>
+
+<main>
+  <h1>Build Your Own Clicker</h1>
+  <p class="subtitle">Make it yours. Choose your colours and buttons!</p>
+
+  <div class="section">
+    <h3>Your Clicker Preview</h3>
+    <div class="preview">
+      <div class="clicker" id="clicker">
+        <div id="buttons"></div>
+      </div>
+    </div>
+    <p class="note">Your design updates as you customise it.</p>
+  </div>
+
+  <div class="section">
+    <h3>1. Choose your body colour</h3>
+    <div class="choices" id="bodyColors"></div>
+  </div>
+
+  <div class="section">
+    <h3>2. Choose your number of buttons</h3>
+    <div class="count">
+      <button onclick="setCount(1)" id="c1">1 Button</button>
+      <button onclick="setCount(2)" id="c2">2 Buttons</button>
+      <button onclick="setCount(3)" id="c3">3 Buttons</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>3. Choose each button colour</h3>
+    <div id="buttonColors"></div>
+  </div>
+
+  <div class="section">
+    <h3>Your custom clicker</h3>
+    <p class="note">Estimated price</p>
+    <div class="price" id="price">Rs. 450</div>
+    <button class="order" onclick="orderClicker()">
+      ORDER MY CLICKER VIA WHATSAPP
+    </button>
+  </div>
+
+</main>
+
+<footer>
+  © She3DPrints.lk | Custom 3D Printed Clickers
+</footer>
+
+<script>
+const colours = [
+  {name:"Milky White", hex:"#F2EEE5"},
+  {name:"Deep Black", hex:"#292929"},
+  {name:"Olive Green", hex:"#747D50"},
+  {name:"Peach Pink", hex:"#E9B5A9"},
+  {name:"Light Brown", hex:"#B58B68"},
+  {name:"Lavender", hex:"#B9A6D0"}
+];
+
+let bodyColour = "#F2EEE5";
+let buttonColours = ["#292929","#747D50","#E9B5A9"];
+let count = 1;
+
+const prices = {1:450, 2:650, 3:950};
+
+function makeSwatches(container, selected, callback) {
+  container.innerHTML = "";
+  colours.forEach(c => {
+    const s = document.createElement("button");
+    s.className = "swatch" + (c.hex === selected ? " selected" : "");
+    s.style.background = c.hex;
+    s.title = c.name;
+    s.onclick = callback.bind(null,c.hex);
+    container.appendChild(s);
+  });
+}
+
+function setupBodyColors() {
+  makeSwatches(
+    document.getElementById("bodyColors"),
+    bodyColour,
+    colour => {
+      bodyColour = colour;
+      update();
+    }
+  );
+}
+
+function setCount(n) {
+  count = n;
+  update();
+}
+
+function setupButtonColors() {
+  const area = document.getElementById("buttonColors");
+  area.innerHTML = "";
+
+  for(let i=0;i<count;i++) {
+    const label = document.createElement("label");
+    label.textContent = "Button " + (i+1);
+
+    const choices = document.createElement("div");
+    choices.className = "choices";
+
+    makeSwatches(
+      choices,
+      buttonColours[i],
+      colour => {
+        buttonColours[i] = colour;
+        update();
+      }
+    );
+
+    area.appendChild(label);
+    area.appendChild(choices);
+    area.appendChild(document.createElement("br"));
+  }
+}
+
+function update() {
+  document.getElementById("clicker").style.background = bodyColour;
+
+  const area = document.getElementById("buttons");
+  area.style.display = "flex";
+  area.style.gap = "12px";
+  area.innerHTML = "";
+
+  for(let i=0;i<count;i++) {
+    const b = document.createElement("div");
+    b.className = "click-button";
+    b.style.background = buttonColours[i];
+    area.appendChild(b);
+  }
+
+  [1,2,3].forEach(n => {
+    document.getElementById("c"+n)
+      .classList.toggle("selected", count === n);
+  });
+
+  document.getElementById("price").textContent =
+    "Rs. " + prices[count];
+
+  setupBodyColors();
+  setupButtonColors();
+}
+
+function orderClicker() {
+  const body = colours.find(c => c.hex === bodyColour).name;
+  const buttons = buttonColours.slice(0,count).map(
+    (hex,i) => "Button " + (i+1) + ": " +
+    colours.find(c => c.hex === hex).name
+  ).join("\n");
+
+  const message =
+    "Hello She3DPrints! I would like to order a custom clicker.\n\n" +
+    "Body colour: " + body + "\n" +
+    "Number of buttons: " + count + "\n" +
+    buttons + "\n\n" +
+    "Estimated price: Rs. " + prices[count];
+
+  window.open(
+    "https://wa.me/?text=" + encodeURIComponent(message),
+    "_blank"
+  );
+}
+
+update();
+</script>
+
+</body>
+</html>
