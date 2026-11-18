@@ -81,7 +81,7 @@ document.querySelector('#order').onclick=()=>{
  const letters=slots.slice(0,count).filter(s=>s.type==='letter').length,sym=count-letters,total=basePrices[count]+letters*100+sym*150;
  const msg=`Hello She3DPrints! I would like to order a custom clicker.\nBase: ${count} slot(s) – Rs. ${basePrices[count]}\nBase colour: ${colours.find(c=>c[1]===baseColour)[0]}\n${slots.slice(0,count).map((s,i)=>`Keycap ${i+1}: ${s.type} ${s.value}, ${colours.find(c=>c[1]===s.colour)[0]}`).join('\n')}\nTotal: Rs. ${total}`;
  if(!/^94\d{9}$/.test(+94755227557)){alert('Please add your WhatsApp number in the code first. Use 94 followed by your 9-digit mobile number.');return}
- window.open('https://wa.me/'+WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+ window.open('https://wa.me/'+755227557+'?text='+encodeURIComponent(msg),'_blank');
 };
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();initialise();
