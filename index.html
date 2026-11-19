@@ -15,7 +15,7 @@ const WHATSAPP_NUMBER='94XXXXXXXXX'; // Replace with your number, without + or l
 const colours=[['Milky White','#F2EEE5'],['Deep Black','#292929'],['Olive Green','#747D50'],['Peach Pink','#E9B5A9'],['Light Brown','#B58B68']];
 const basePrices={1:350,2:500,3:800};
 const symbols=[['Symbol 1','1'],['Symbol 2','2'],['Symbol 3','3'],['Symbol 4','4'],['Symbol 5','5']];
-let count=1,baseColour=colours[0][1],slots=[{type:'letter',value:'A',colour:'#292929'},{type:'letter',value:'B',colour:'#292929'},{type:'letter',value:'C',colour:'#292929'}];
+let count=1,baseColour=colours[0][1],slots=[{type:'letter',value:'A',colour:'#292929',letterColour:'#F2EEE5'},{type:'letter',value:'B',colour:'#292929',letterColour:'#F2EEE5'},{type:'letter',value:'C',colour:'#292929',letterColour:'#F2EEE5'}];
 const canvas=document.querySelector('#stage'),status=document.querySelector('#status');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(35,canvas.clientWidth/canvas.clientHeight,.1,2000);camera.position.set(110,95,130);
@@ -48,7 +48,7 @@ function addCaps(){
   const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:s.colour,roughness:.5}));
   mesh.rotation.x=-Math.PI/2;mesh.scale.setScalar(.78);mesh.position.set(x,capY,0);mesh.userData.capPart=true;root.add(mesh);
   if(s.type==='letter'){
-   const c=document.createElement('canvas');c.width=256;c.height=256;const ctx=c.getContext('2d');ctx.clearRect(0,0,256,256);ctx.fillStyle='#242424';ctx.font='bold 170px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s.value,128,132);
+   const c=document.createElement('canvas');c.width=256;c.height=256;const ctx=c.getContext('2d');ctx.clearRect(0,0,256,256);ctx.fillStyle=s.letterColour||'#F2EEE5';ctx.font='bold 170px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s.value,128,132);
    const tex=new THREE.CanvasTexture(c);const face=new THREE.Mesh(new THREE.PlaneGeometry(12,12),new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide}));
    face.rotation.x=-Math.PI/2;face.position.set(x,capY+5,0);face.userData.capPart=true;root.add(face);
   }
@@ -63,12 +63,12 @@ function render(){
  const rootEl=document.querySelector('#slots');rootEl.innerHTML='';
  for(let i=0;i<count;i++){
   const s=slots[i],d=document.createElement('div');d.className='slot';
-  d.innerHTML=`<div class="slot-head">Keycap ${i+1}</div><div class="type-row"><button class="choice ${s.type==='letter'?'active':''}" data-type="letter">Letter</button><button class="choice ${s.type==='symbol'?'active':''}" data-type="symbol">Symbol</button></div><select aria-label="Choose keycap ${i+1}"></select><label style="display:block;margin-top:10px">Keycap colour</label><div class="swatches"></div>`;
+  d.innerHTML=`<div class="slot-head">Keycap ${i+1}</div><div class="type-row"><button class="choice ${s.type==='letter'?'active':''}" data-type="letter">Letter</button><button class="choice ${s.type==='symbol'?'active':''}" data-type="symbol">Symbol</button></div><select aria-label="Choose keycap ${i+1}"></select><label style="display:block;margin-top:10px">Keycap colour</label><div class="swatches cap-swatches"></div>${s.type==='letter'?'<label style="display:block;margin-top:10px">Letter colour</label><div class="swatches letter-swatches"></div>':''}`;
   const sel=d.querySelector('select'),opts=s.type==='letter'?'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(x=>[x,x]):symbols;
   opts.forEach(([name,v])=>{const o=document.createElement('option');o.value=v;o.textContent=name;sel.append(o)});sel.value=s.value;
   sel.onchange=()=>{s.value=sel.value;render()};
-  d.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{s.type=b.dataset.type;s.value=s.type==='letter'?'A':'1';render()});
-  swatches(d.querySelector('.swatches'),s.colour,c=>{s.colour=c;render()});rootEl.append(d);
+  d.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{s.type=b.dataset.type;s.value=s.type==='letter'?'A':'1';if(s.type==='letter'&&!s.letterColour)s.letterColour='#F2EEE5';render()});
+  swatches(d.querySelector('.cap-swatches'),s.colour,c=>{s.colour=c;render()});if(s.type==='letter')swatches(d.querySelector('.letter-swatches'),s.letterColour||'#F2EEE5',c=>{s.letterColour=c;render()});rootEl.append(d);
  }
  addCaps();
  const letters=slots.slice(0,count).filter(s=>s.type==='letter').length,sym=count-letters,total=basePrices[count]+letters*100+sym*150;
@@ -79,9 +79,9 @@ document.querySelectorAll('[data-count]').forEach(b=>b.onclick=async()=>{count=+
 document.querySelector('#reset').onclick=()=>fitCamera();document.querySelector('#zoomIn').onclick=()=>camera.position.multiplyScalar(.82);document.querySelector('#zoomOut').onclick=()=>camera.position.multiplyScalar(1.22);
 document.querySelector('#order').onclick=()=>{
  const letters=slots.slice(0,count).filter(s=>s.type==='letter').length,sym=count-letters,total=basePrices[count]+letters*100+sym*150;
- const msg=`Hello She3DPrints! I would like to order a custom clicker.\nBase: ${count} slot(s) – Rs. ${basePrices[count]}\nBase colour: ${colours.find(c=>c[1]===baseColour)[0]}\n${slots.slice(0,count).map((s,i)=>`Keycap ${i+1}: ${s.type} ${s.value}, ${colours.find(c=>c[1]===s.colour)[0]}`).join('\n')}\nTotal: Rs. ${total}`;
- if(!/^94\d{9}$/.test(+94755227557)){alert('Please add your WhatsApp number in the code first. Use 94 followed by your 9-digit mobile number.');return}
- window.open('https://wa.me/'+755227557+'?text='+encodeURIComponent(msg),'_blank');
+ const msg=`Hello She3DPrints! I would like to order a custom clicker.\nBase: ${count} slot(s) – Rs. ${basePrices[count]}\nBase colour: ${colours.find(c=>c[1]===baseColour)[0]}\n${slots.slice(0,count).map((s,i)=>`Keycap ${i+1}: ${s.type} ${s.value}, cap colour ${colours.find(c=>c[1]===s.colour)[0]}${s.type==='letter'?', letter colour '+(colours.find(c=>c[1]===s.letterColour)?.[0]||s.letterColour):''}`).join('\n')}\nTotal: Rs. ${total}`;
+ if(!/^94\d{9}$/.test(WHATSAPP_NUMBER)){alert('Please add your WhatsApp number in the code first. Use 94 followed by your 9-digit mobile number.');return}
+ window.open('https://wa.me/'+94755227557+'?text='+encodeURIComponent(msg),'_blank');
 };
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();initialise();
