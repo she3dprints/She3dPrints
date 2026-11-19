@@ -5,7 +5,7 @@
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script></head>
 <body><header><strong>SHE 3D PRINTS</strong><p>MADE JUST THE WAY YOU LIKE IT</p></header><main><h1>Build Your Own Clicker</h1><p class="intro">Customise your clicker and turn it around to see it from every angle.</p>
-<div class="layout"><section class="panel"><h2 class="section-title">Your 3D preview</h2><div class="viewer"><div class="status" id="status">Loading 3D models…</div><canvas id="stage"></canvas></div><div class="viewer-actions"><button class="smallbtn" id="reset">Reset view</button><button class="smallbtn" id="zoomIn">＋ Zoom</button><button class="smallbtn" id="zoomOut">－ Zoom</button></div><p class="hint">Drag to rotate · Pinch or scroll to zoom</p><p class="note">Preview uses your supplied base, keycap and symbol STL models.</p></section>
+<div class="layout"><section class="panel"><h2 class="section-title">Your 3D preview</h2><div class="viewer"><div class="status" id="status">Loading 3D models…</div><canvas id="stage"></canvas></div><div class="viewer-actions"><button class="smallbtn" id="reset">Reset view</button><button class="smallbtn" id="zoomIn">＋ Zoom</button><button class="smallbtn" id="zoomOut">－ Zoom</button></div><p class="hint">Drag to rotate · Pinch or scroll to zoom</p></section>
 <div><section class="panel"><h2 class="section-title">1. Choose your base</h2><div class="count"><button class="choice active" data-count="1">1 Slot</button><button class="choice" data-count="2">2 Slots</button><button class="choice" data-count="3">3 Slots</button></div><p class="note">Base: 1 slot Rs. 350 · 2 slots Rs. 500 · 3 slots Rs. 800</p></section><section class="panel"><h2 class="section-title">2. Base colour</h2><div id="baseSwatches" class="swatches"></div></section><section class="panel"><h2 class="section-title">3. Customise your keycaps</h2><div id="slots"></div><p class="note">Letters: Rs. 100 each · Symbols: Rs. 150 each</p></section><section class="panel"><h2 class="section-title">Your total</h2><div class="price" id="price">Rs. 450</div><div class="breakdown" id="breakdown"></div><button class="order" id="order">ORDER VIA WHATSAPP</button></section></div></div></main><footer>© She3DPrints.lk · Custom 3D Printed Clickers</footer>
 <script type="module">
 import * as THREE from 'three';
@@ -55,9 +55,9 @@ function drawSymbol(ctx,kind,colour){
 function addCaps(){
  if(!ready||!baseMesh)return;clearCaps();
  const bb=new THREE.Box3().setFromObject(baseMesh),sz=bb.getSize(new THREE.Vector3());
- const spacing=Math.min(sz.x/count*.82,22),capY=bb.max.y+5;
+ const spacing=21.5,capOffset=2.2,capY=bb.max.y+5;
  for(let i=0;i<count;i++){
-  const s=slots[i],x=(i-(count-1)/2)*spacing;
+  const s=slots[i],x=(i-(count-1)/2)*spacing+capOffset;
   const mesh=new THREE.Mesh(plainCap,new THREE.MeshStandardMaterial({color:s.colour,roughness:.5}));
   mesh.rotation.x=-Math.PI/2;mesh.scale.setScalar(.78);mesh.position.set(x,capY,0);mesh.userData.capPart=true;root.add(mesh);
 
