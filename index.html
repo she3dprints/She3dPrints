@@ -79,29 +79,30 @@ document.querySelectorAll('[data-count]').forEach(b=>b.onclick=async()=>{count=+
 document.querySelector('#reset').onclick=()=>fitCamera();document.querySelector('#zoomIn').onclick=()=>camera.position.multiplyScalar(.82);document.querySelector('#zoomOut').onclick=()=>camera.position.multiplyScalar(1.22);
 document.querySelector('#order').onclick=()=>{
  const letters=slots.slice(0,count).filter(s=>s.type==='letter').length,sym=count-letters,total=basePrices[count]+letters*100+sym*150;
+ const baseName=colours.find(c=>c[1]===baseColour)?.[0]||baseColour;
+ const keycapDetails=slots.slice(0,count).map((s,i)=>{
+  const capName=colours.find(c=>c[1]===s.colour)?.[0]||s.colour;
+  const markName=colours.find(c=>c[1]===s.letterColour)?.[0]||s.letterColour;
+  const itemName=s.type==='letter'?s.value:`Symbol ${s.value}`;
+  return `• Keycap ${i+1}\n  - Letter/Symbol: ${itemName}\n  - Cap colour: ${capName}${s.type==='letter'?`\n  - Letter colour: ${markName}`:''}`;
+ }).join('\n\n');
  const msg=`SHE 3D PRINTS | CUSTOM CLICKER ORDER
 
 Hi! I would like to place an order for a custom clicker.
 
 1. BASE
 • Number of slots: ${count}
-• Base colour: ${colours.find(c=>c[1]===baseColour)[0]}
+• Base colour: ${baseName}
+• Base price: Rs. ${basePrices[count]}
 
 2. KEYCAP DETAILS
 
-${slots.slice(0,count).map((s,i)=>`• Keycap ${i+1}
-  - Letter/Symbol: ${s.value}
-  - Cap colour: ${colours.find(c=>c[1]===s.colour)[0]}${s.type==='letter'?'\n  - Letter colour: '+(colours.find(c=>c[1]===s.letterColour)?.[0]||s.letterColour):''}`).join('\n\n')}
+${keycapDetails}
 
 TOTAL SLOTS: ${count}
-
-Base price: Rs. ${basePrices[count]}
-Letter caps: ${letters} × Rs. 100
-Symbol caps: ${sym} × Rs. 150
 TOTAL: Rs. ${total}
 
 Thank you! Looking forward to receiving my custom clicker. ♡`;
- if(!/^94\d{9}$/.test(WHATSAPP_NUMBER)){alert('Please add your WhatsApp number in the code first. Use 94 followed by your 9-digit mobile number.');return}
  window.open('https://wa.me/'+WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
 };
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);
